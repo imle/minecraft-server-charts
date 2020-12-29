@@ -184,6 +184,21 @@ spec:
         - name: ENABLE_RCON
           value: "false"
         {{- end }}
+
+        {{- if .Values.minecraftServer.prometheus.enabled }}
+        - name: ENABLE_PROMETHEUS
+          value: "true"
+        - name: PROMETHEUS_PORT
+          value: {{ .Values.minecraftServer.prometheus.port }}
+          {{- range $key, $value := .Values.minecraftServer.prometheus.enable_metrics }}
+        - name: PROMETHEUS_ENABLE_{{ upper $key }}
+          value: {{ $value | quote }}
+          {{- end }}
+        {{- else }}
+        - name: ENABLE_PROMETHEUS
+          value: "false"
+        {{- end }}
+
         {{- if .Values.minecraftServer.query.enabled }}
         - name: ENABLE_QUERY
           value: "true"

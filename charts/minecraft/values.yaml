@@ -181,6 +181,35 @@ minecraftServer:
       #    hosts:
       #      - dynmap.local
 
+  prometheus:
+    enabled: false
+    port: 9225
+    serviceType: LoadBalancer
+    loadBalancerIP:
+    # loadBalancerSourceRanges: []
+    ## Set the externalTrafficPolicy in the Service to either Cluster or Local
+    # externalTrafficPolicy: Cluster
+
+    # Metrics can be enabled individually. Metrics which are disabled
+    # by default may have a performance impact on your server.
+    # See the rest of the README for more information.
+    enable_metrics:
+      jvm_threads: true
+      jvm_gc: true
+      players_total: true
+      entities_total: true
+      living_entities_total: true
+      loaded_chunks_total: true
+      jvm_memory: true
+      players_online_total: true
+      tps: true
+      tick_duration_average: true
+      tick_duration_median: true
+      tick_duration_min: false
+      tick_duration_max: true
+      player_online: false
+      player_statistic: false
+
   query:
     # If you enable this, your server will be "published" to Gamespy
     enabled: false

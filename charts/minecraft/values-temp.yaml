@@ -1,0 +1,116 @@
+# ref: https://hub.docker.com/r/itzg/minecraft-server/
+image: itzg/minecraft-server
+imageTag: multiarch
+imagePullSecret: ""
+
+## Configure resource requests and limits
+## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+##
+resources:
+  requests:
+    memory: 4Gi
+    cpu: 1000m
+  limits:
+    memory: 6Gi
+    cpu: 2000m
+
+# upgrade strategy type (e.g. Recreate or RollingUpdate)
+strategyType: Recreate
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+securityContext:
+  # Security context settings
+  runAsUser: 1000
+  fsGroup: 2000
+# Most of these map to environment variables. See Minecraft for details:
+# https://hub.docker.com/r/itzg/minecraft-server/
+livenessProbe:
+  initialDelaySeconds: 240
+  periodSeconds: 5
+  failureThreshold: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+readinessProbe:
+  initialDelaySeconds: 240
+  periodSeconds: 5
+  failureThreshold: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+startupProbe:
+  enabled: true
+  failureThreshold: 100
+  periodSeconds: 10
+
+minecraftServer:
+  # This must be overridden, since we can't accept this for the user.
+  eula: "TRUE"
+  # This can be one of "VANILLA", "FORGE", "SPIGOT", "BUKKIT", "PAPER", "FTBA", "SPONGEVANILLA"
+  type: "FTBA"
+  # One of: peaceful, easy, normal, and hard
+  difficulty: normal
+  # If true, players will always join in the default gameMode even if they were previously set to something else.
+  forcegameMode: true
+  # Message of the Day
+  motd: "Boosted"
+  # If true, enable player-vs-player damage.
+  pvp: true
+  # If you adjust this, you may need to adjust resources.requests above to match.
+  memory: 6024M
+  serviceType: LoadBalancer
+  loadBalancerIP:
+
+  rcon:
+    # If you enable this, make SURE to change your password below.
+    enabled: true
+    password: "password"
+    serviceType: LoadBalancer
+    loadBalancerIP:
+
+  prometheus:
+    enabled: true
+    port: 9225
+    serviceType: LoadBalancer
+    loadBalancerIP:
+    # loadBalancerSourceRanges: []
+    ## Set the externalTrafficPolicy in the Service to either Cluster or Local
+    # externalTrafficPolicy: Cluster
+
+    # Metrics can be enabled individually. Metrics which are disabled
+    # by default may have a performance impact on your server.
+    # See the rest of the README for more information.
+    enable_metrics:
+      jvm_threads: true
+      jvm_gc: true
+      players_total: true
+      entities_total: true
+      living_entities_total: true
+      loaded_chunks_total: true
+      jvm_memory: true
+      players_online_total: true
+      tps: true
+      tick_duration_average: true
+      tick_duration_median: true
+      tick_duration_min: false
+      tick_duration_max: true
+      player_online: false
+      player_statistic: false
+
+## Additional minecraft container environment variables
+##
+extraEnv:
+  FTB_MODPACK_ID: 79
+
+persistence:
+  storageClass: "-"
+  dataDir:
+    enabled: true
+    existingClaim: minecraft
+
+podAnnotations: {}
+
+deploymentAnnotations: {}

@@ -1,0 +1,38 @@
+{{- if default "" .Values.minecraftServer.prometheus.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "minecraft.fullname" . }}-prometheus"
+  annotations:
+    {{ toYaml .Values.minecraftServer.serviceAnnotations | indent 4 }}
+  labels:
+    app: {{ template "minecraft.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+{{- if (or (eq .Values.minecraftServer.prometheus.serviceType "ClusterIP") (empty .Values.minecraftServer.prometheus.serviceType)) }}
+  type: ClusterIP
+{{- else if eq .Values.minecraftServer.prometheus.serviceType "LoadBalancer" }}
+  type: {{ .Values.minecraftServer.prometheus.serviceType }}
+  {{- if .Values.minecraftServer.prometheus.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.minecraftServer.prometheus.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.minecraftServer.prometheus.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+{{ toYaml .Values.minecraftServer.prometheus.loadBalancerSourceRanges | indent 4 }}
+  {{- end -}}
+{{- else }}
+  type: {{ .Values.minecraftServer.prometheus.serviceType }}
+{{- end }}
+  {{- if .Values.minecraftServer.prometheus.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.minecraftServer.prometheus.externalTrafficPolicy }}
+  {{- end }}
+  ports:
+  - name: metrics
+    port: {{ .Values.minecraftServer.prometheus.port }}
+    targetPort: metrics
+    protocol: TCP
+  selector:
+    app: {{ template "minecraft.fullname" . }}
+{{- end }}
